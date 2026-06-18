@@ -100,4 +100,20 @@ export const server = {
       return { ok: true };
     },
   }),
+
+  deleteObra: defineAction({
+    accept: 'form',
+    input: z.object({ id: z.string().uuid() }),
+    handler: async ({ id }, ctx) => {
+      if (!ctx.locals.user) throw new ActionError({ code: 'UNAUTHORIZED', message: 'No autorizado.' });
+      const admin = createAdminClient();
+      const { data: files } = await admin.storage.from('obras').list(id);
+      if (files && files.length) {
+        await admin.storage.from('obras').remove(files.map((f) => `${id}/${f.name}`));
+      }
+      const { error } = await admin.from('obras').delete().eq('id', id);
+      if (error) throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
+      return { ok: true };
+    },
+  }),
 };

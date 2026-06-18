@@ -9,9 +9,16 @@ const { data } = await Astro.locals.supabase.from('obras').select('*, obra_fotos
 const obra = data as Obra | null;
 if (!obra) return Astro.redirect('/admin');
 const result = Astro.getActionResult(actions.saveObra);
+const delResult = Astro.getActionResult(actions.deleteObra);
+if (delResult && !delResult.error) return Astro.redirect('/admin');
 ---
 <AdminLayout title={`Editar: ${obra.titulo}`}>
   {result?.error && <p class="text-sm text-red-600 mb-4">{result.error.message}</p>}
   {result && !result.error && <p class="text-sm text-green mb-4">Cambios guardados.</p>}
   <ObraForm obra={obra} />
+  <form method="POST" action={actions.deleteObra} class="mt-8 max-w-3xl"
+        onsubmit="return confirm('¿Eliminar esta obra y todas sus fotos? Esta acción no se puede deshacer.')">
+    <input type="hidden" name="id" value={obra.id} />
+    <button class="text-sm text-red-600 hover:underline">Eliminar obra</button>
+  </form>
 </AdminLayout>
