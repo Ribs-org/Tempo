@@ -1,0 +1,17 @@
+---
+import Logo from './Logo.astro';
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/portafolio', label: 'Portafolio' },
+  { href: '/#servicios', label: 'Servicios' },
+  { href: '/#contacto', label: 'Contacto' },
+];
+---
+<header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-black/5">
+  <div class="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
+    <Logo />
+    <nav class="hidden sm:flex gap-7 text-sm font-medium text-ink/80">
+      {links.map((l) => <a class="hover:text-green transition-colors" href={l.href}>{l.label}</a>)}
+    </nav>
+  </div>
+</header>

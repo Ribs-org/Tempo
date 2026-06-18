@@ -1,0 +1,32 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getObras } from '../../lib/queries';
+import { categoriaLabel } from '../../lib/types';
+const obras = await getObras(Astro.locals.supabase);
+---
+<AdminLayout title="Obras">
+  <div class="flex justify-end mb-6">
+    <a href="/admin/obras/new" class="rounded-md bg-green text-white px-5 py-2.5 text-sm font-medium hover:bg-green-dark">+ Nueva obra</a>
+  </div>
+  <div class="bg-white rounded-xl border border-black/5 overflow-hidden">
+    {obras.length === 0
+      ? <p class="p-8 text-ink/50 text-sm">No hay obras todavía. Crea la primera.</p>
+      : (
+        <table class="w-full text-sm">
+          <thead class="bg-mist text-left text-ink/60">
+            <tr><th class="px-5 py-3">Título</th><th class="px-5 py-3">Categoría</th><th class="px-5 py-3">Destacada</th><th class="px-5 py-3"></th></tr>
+          </thead>
+          <tbody>
+            {obras.map((o) => (
+              <tr class="border-t border-black/5">
+                <td class="px-5 py-3 font-medium text-ink">{o.titulo}</td>
+                <td class="px-5 py-3 text-ink/70">{categoriaLabel(o.categoria)}</td>
+                <td class="px-5 py-3">{o.destacada ? '★' : '—'}</td>
+                <td class="px-5 py-3 text-right"><a href={`/admin/obras/${o.id}/edit`} class="text-green hover:underline">Editar</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+  </div>
+</AdminLayout>

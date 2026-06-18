@@ -1,0 +1,39 @@
+---
+import type { Contacto } from '../lib/types';
+interface Props { contacto: Contacto | null; }
+const { contacto } = Astro.props;
+---
+<footer id="contacto" class="bg-ink text-white/90 mt-24">
+  <div class="mx-auto max-w-6xl px-6 py-14 grid gap-10 sm:grid-cols-3">
+    <div>
+      <p class="font-display font-bold text-lg text-white">{contacto?.razon_social ?? 'TEMPO S.A.'}</p>
+      <p class="text-sm text-white/60 mt-2">Consultora de ingeniería y proyectos</p>
+    </div>
+    <div class="text-sm space-y-1">
+      <p class="text-white/50 uppercase tracking-wide text-xs mb-2">Contacto</p>
+      {contacto?.direccion && <p>{contacto.direccion}</p>}
+      {contacto?.telefono && <p>{contacto.telefono}</p>}
+      {contacto?.email && <p><a class="hover:text-orange" href={`mailto:${contacto.email}`}>{contacto.email}</a></p>}
+      {contacto?.horario && <p class="text-white/60">{contacto.horario}</p>}
+    </div>
+    <div class="text-sm">
+      {contacto?.redes && Object.entries(contacto.redes).map(([k, v]) => (
+        <a class="block hover:text-orange capitalize" href={v}>{k}</a>
+      ))}
+    </div>
+  </div>
+  {contacto?.mapa_embed && contacto.mapa_embed.startsWith('https://') && (
+    <div class="mx-auto max-w-6xl px-6 pb-10">
+      <iframe
+        src={contacto.mapa_embed}
+        class="w-full h-64 rounded-lg border-0"
+        loading="lazy"
+        title="Mapa"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  )}
+  <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">
+    © {new Date().getFullYear()} TEMPO S.A. — Todos los derechos reservados.
+  </div>
+</footer>

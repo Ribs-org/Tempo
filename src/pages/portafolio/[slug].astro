@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { createAnonServerClient } from '../../lib/supabase';
+import { getObraBySlug, getContacto } from '../../lib/queries';
+import { categoriaLabel, estadoLabel } from '../../lib/types';
+
+const { slug } = Astro.params;
+const client = createAnonServerClient(Astro.cookies);
+const obra = await getObraBySlug(client, slug!);
+if (!obra) return Astro.redirect('/portafolio');
+const contacto = await getContacto(client);
+const fotos = (obra.obra_fotos ?? []).sort((a, b) => a.orden - b.orden);
+const meta = [
+  obra.ubicacion && { l: 'Ubicación', v: obra.ubicacion },
+  obra.anio && { l: 'Año', v: String(obra.anio) },
+  obra.cliente && { l: 'Cliente / Mandante', v: obra.cliente },
+  obra.estado && { l: 'Estado', v: estadoLabel(obra.estado) },
+].filter(Boolean) as { l: string; v: string }[];
+---
+<BaseLayout title={`${obra.titulo} — TEMPO S.A.`} description={obra.descripcion ?? undefined}>
+  <Header />
+  <main class="mx-auto max-w-5xl px-6 py-12">
+    <a href="/portafolio" class="text-sm text-green hover:underline">← Volver al portafolio</a>
+    <span class="block text-xs font-medium uppercase tracking-wide text-green mt-6">{categoriaLabel(obra.categoria)}</span>
+    <h1 class="font-display font-bold text-4xl text-ink mt-2">{obra.titulo}</h1>
+
+    {obra.portada_url && <img src={obra.portada_url} alt={obra.titulo} class="w-full rounded-xl mt-8 aspect-video object-cover" />}
+
+    <div class="grid gap-10 lg:grid-cols-3 mt-10">
+      <div class="lg:col-span-2">
+        {obra.descripcion && <p class="text-ink/80 leading-relaxed whitespace-pre-line">{obra.descripcion}</p>}
+      </div>
+      {meta.length > 0 && (
+        <dl class="space-y-4 bg-mist rounded-xl p-6 h-fit">
+          {meta.map((m) => (
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-ink/50">{m.l}</dt>
+              <dd class="text-ink font-medium">{m.v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
+
+    {fotos.length > 0 && (
+      <div class="mt-12">
+        <h2 class="font-display font-semibold text-2xl text-ink mb-6">Galería</h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {fotos.map((f) => <img src={f.url} alt={f.alt ?? obra.titulo} class="rounded-lg aspect-square object-cover" />)}
+        </div>
+      </div>
+    )}
+  </main>
+  <Footer contacto={contacto} />
+</BaseLayout>

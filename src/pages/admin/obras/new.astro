@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ObraForm from '../../../components/ObraForm.astro';
+import { actions } from 'astro:actions';
+const result = Astro.getActionResult(actions.saveObra);
+if (result && !result.error) return Astro.redirect(`/admin/obras/${result.data.id}/edit`);
+---
+<AdminLayout title="Nueva obra">
+  {result?.error && <p class="text-sm text-red-600 mb-4">{result.error.message}</p>}
+  <ObraForm />
+</AdminLayout>
