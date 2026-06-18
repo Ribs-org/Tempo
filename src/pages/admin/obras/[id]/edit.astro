@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import ObraForm from '../../../../components/ObraForm.astro';
+import { actions } from 'astro:actions';
+import type { Obra } from '../../../../lib/types';
+
+const { id } = Astro.params;
+const { data } = await Astro.locals.supabase.from('obras').select('*, obra_fotos(*)').eq('id', id).single();
+const obra = data as Obra | null;
+if (!obra) return Astro.redirect('/admin');
+const result = Astro.getActionResult(actions.saveObra);
+---
+<AdminLayout title={`Editar: ${obra.titulo}`}>
+  {result?.error && <p class="text-sm text-red-600 mb-4">{result.error.message}</p>}
+  {result && !result.error && <p class="text-sm text-green mb-4">Cambios guardados.</p>}
+  <ObraForm obra={obra} />
+</AdminLayout>

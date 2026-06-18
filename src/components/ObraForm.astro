@@ -1,0 +1,65 @@
+---
+import type { Obra } from '../lib/types';
+import { CATEGORIAS, ESTADOS } from '../lib/types';
+import { actions } from 'astro:actions';
+interface Props { obra?: Obra; }
+const { obra } = Astro.props;
+const fotos = (obra?.obra_fotos ?? []).sort((a, b) => a.orden - b.orden);
+const field = 'mt-1 w-full rounded-md border border-ink/15 px-3 py-2 text-sm';
+---
+<form method="POST" action={actions.saveObra} enctype="multipart/form-data" class="space-y-6 bg-white rounded-xl border border-black/5 p-8 max-w-3xl">
+  {obra && <input type="hidden" name="id" value={obra.id} />}
+  <div class="grid gap-6 sm:grid-cols-2">
+    <label class="block text-sm sm:col-span-2"><span class="text-ink/70">Título *</span>
+      <input name="titulo" required value={obra?.titulo ?? ''} class={field} /></label>
+    <label class="block text-sm"><span class="text-ink/70">Categoría *</span>
+      <select name="categoria" class={field}>
+        {CATEGORIAS.map((c) => <option value={c.value} selected={obra?.categoria === c.value}>{c.label}</option>)}
+      </select></label>
+    <label class="block text-sm"><span class="text-ink/70">Estado</span>
+      <select name="estado" class={field}>
+        <option value="">—</option>
+        {ESTADOS.map((e) => <option value={e.value} selected={obra?.estado === e.value}>{e.label}</option>)}
+      </select></label>
+    <label class="block text-sm"><span class="text-ink/70">Ubicación</span>
+      <input name="ubicacion" value={obra?.ubicacion ?? ''} class={field} /></label>
+    <label class="block text-sm"><span class="text-ink/70">Año</span>
+      <input name="anio" type="number" value={obra?.anio ?? ''} class={field} /></label>
+    <label class="block text-sm"><span class="text-ink/70">Cliente / Mandante</span>
+      <input name="cliente" value={obra?.cliente ?? ''} class={field} /></label>
+    <label class="block text-sm"><span class="text-ink/70">Orden</span>
+      <input name="orden" type="number" value={obra?.orden ?? 0} class={field} /></label>
+    <label class="block text-sm sm:col-span-2"><span class="text-ink/70">Descripción</span>
+      <textarea name="descripcion" rows="5" class={field}>{obra?.descripcion ?? ''}</textarea></label>
+    <label class="flex items-center gap-2 text-sm sm:col-span-2">
+      <input name="destacada" type="checkbox" value="true" checked={obra?.destacada} /> <span class="text-ink/70">Destacar en la portada</span></label>
+  </div>
+
+  <div class="border-t border-black/5 pt-6 space-y-4">
+    <label class="block text-sm"><span class="text-ink/70">Foto de portada {obra?.portada_url && '(reemplaza la actual)'}</span>
+      <input name="portada" type="file" accept="image/*" class="mt-1 block text-sm" /></label>
+    {obra?.portada_url && <img src={obra.portada_url} alt="portada" class="h-28 rounded-md object-cover" />}
+    <label class="block text-sm"><span class="text-ink/70">Agregar fotos a la galería</span>
+      <input name="fotos" type="file" accept="image/*" multiple class="mt-1 block text-sm" /></label>
+  </div>
+
+  <button class="rounded-md bg-green text-white px-6 py-2.5 text-sm font-medium hover:bg-green-dark">Guardar obra</button>
+</form>
+
+{fotos.length > 0 && (
+  <div class="mt-8 max-w-3xl">
+    <h3 class="font-display font-semibold text-ink mb-3">Galería actual</h3>
+    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+      {fotos.map((f) => (
+        <div class="relative group">
+          <img src={f.url} alt={f.alt ?? ''} class="aspect-square object-cover rounded-md" />
+          <form method="POST" action={actions.deleteFoto} class="absolute top-1 right-1">
+            <input type="hidden" name="fotoId" value={f.id} />
+            <input type="hidden" name="url" value={f.url} />
+            <button class="bg-white/90 text-red-600 rounded px-2 py-0.5 text-xs opacity-0 group-hover:opacity-100" title="Eliminar">✕</button>
+          </form>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
