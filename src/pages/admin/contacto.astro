@@ -1,0 +1,35 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getContacto } from '../../lib/queries';
+import { actions } from 'astro:actions';
+const contacto = await getContacto(Astro.locals.supabase);
+const result = Astro.getActionResult(actions.saveContacto);
+const field = 'mt-1 w-full rounded-md border border-ink/15 px-3 py-2 text-sm';
+---
+<AdminLayout title="Información de contacto">
+  {result?.error && <p class="text-sm text-red-600 mb-4">{result.error.message}</p>}
+  {result && !result.error && <p class="text-sm text-green mb-4">Contacto actualizado.</p>}
+  <form method="POST" action={actions.saveContacto} class="space-y-5 bg-white rounded-xl border border-black/5 p-8 max-w-2xl">
+    <label class="block text-sm"><span class="text-ink/70">Razón social *</span>
+      <input name="razon_social" required value={contacto?.razon_social ?? ''} class={field} /></label>
+    <label class="block text-sm"><span class="text-ink/70">Dirección</span>
+      <input name="direccion" value={contacto?.direccion ?? ''} class={field} /></label>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="block text-sm"><span class="text-ink/70">Teléfono</span>
+        <input name="telefono" value={contacto?.telefono ?? ''} class={field} /></label>
+      <label class="block text-sm"><span class="text-ink/70">Email</span>
+        <input name="email" type="email" value={contacto?.email ?? ''} class={field} /></label>
+    </div>
+    <label class="block text-sm"><span class="text-ink/70">Horario</span>
+      <input name="horario" value={contacto?.horario ?? ''} class={field} /></label>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="block text-sm"><span class="text-ink/70">LinkedIn (URL)</span>
+        <input name="linkedin" value={contacto?.redes?.linkedin ?? ''} class={field} /></label>
+      <label class="block text-sm"><span class="text-ink/70">Instagram (URL)</span>
+        <input name="instagram" value={contacto?.redes?.instagram ?? ''} class={field} /></label>
+    </div>
+    <label class="block text-sm"><span class="text-ink/70">Mapa (URL de iframe de Google Maps)</span>
+      <input name="mapa_embed" value={contacto?.mapa_embed ?? ''} class={field} /></label>
+    <button class="rounded-md bg-green text-white px-6 py-2.5 text-sm font-medium hover:bg-green-dark">Guardar contacto</button>
+  </form>
+</AdminLayout>

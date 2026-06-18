@@ -116,4 +116,36 @@ export const server = {
       return { ok: true };
     },
   }),
+
+  saveContacto: defineAction({
+    accept: 'form',
+    input: z.object({
+      razon_social: z.string().min(1),
+      direccion: z.string().optional(),
+      telefono: z.string().optional(),
+      email: z.string().optional(),
+      horario: z.string().optional(),
+      linkedin: z.string().optional(),
+      instagram: z.string().optional(),
+      mapa_embed: z.string().optional(),
+    }),
+    handler: async (input, ctx) => {
+      if (!ctx.locals.user) throw new ActionError({ code: 'UNAUTHORIZED', message: 'No autorizado.' });
+      const admin = createAdminClient();
+      const redes: Record<string, string> = {};
+      if (input.linkedin) redes.linkedin = input.linkedin;
+      if (input.instagram) redes.instagram = input.instagram;
+      const { error } = await admin.from('contacto').update({
+        razon_social: input.razon_social,
+        direccion: input.direccion ?? null,
+        telefono: input.telefono ?? null,
+        email: input.email ?? null,
+        horario: input.horario ?? null,
+        mapa_embed: input.mapa_embed ?? null,
+        redes: Object.keys(redes).length ? redes : null,
+      }).eq('id', 1);
+      if (error) throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
+      return { ok: true };
+    },
+  }),
 };
