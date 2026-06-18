@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ObraCard from '../../components/ObraCard.astro';
+import { createAnonServerClient } from '../../lib/supabase';
+import { getObras, getContacto } from '../../lib/queries';
+import { CATEGORIAS } from '../../lib/types';
+
+const client = createAnonServerClient(Astro.cookies);
+const categoria = Astro.url.searchParams.get('categoria') ?? '';
+const [obras, contacto] = await Promise.all([
+  getObras(client, categoria ? { categoria } : {}),
+  getContacto(client),
+]);
+---
+<BaseLayout title="Portafolio — TEMPO S.A.">
+  <Header />
+  <main class="mx-auto max-w-6xl px-6 py-16">
+    <h1 class="font-display font-bold text-4xl text-ink">Portafolio</h1>
+    <p class="text-ink/65 mt-3 max-w-2xl">Obras construidas, proyectos, peritajes y licitaciones de TEMPO S.A.</p>
+
+    <div class="flex flex-wrap gap-2 mt-8">
+      <a href="/portafolio" class={`rounded-full px-4 py-1.5 text-sm border ${categoria === '' ? 'bg-green text-white border-green' : 'border-ink/15 hover:border-green'}`}>Todas</a>
+      {CATEGORIAS.map((c) => (
+        <a href={`/portafolio?categoria=${c.value}`} class={`rounded-full px-4 py-1.5 text-sm border ${categoria === c.value ? 'bg-green text-white border-green' : 'border-ink/15 hover:border-green'}`}>{c.label}</a>
+      ))}
+    </div>
+
+    {obras.length === 0
+      ? <p class="text-ink/50 mt-12">No hay obras en esta categoría.</p>
+      : <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-10">{obras.map((o) => <ObraCard obra={o} />)}</div>}
+  </main>
+  <Footer contacto={contacto} />
+</BaseLayout>
