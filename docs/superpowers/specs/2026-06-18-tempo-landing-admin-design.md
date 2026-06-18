@@ -25,15 +25,14 @@ proyectista, perita de obras, participante en licitaciones). El sitio debe:
 
 ## 3. Arquitectura y estructura de páginas
 
-### Público (prerenderizado)
+### Público (SSR, lectura con anon key)
 - `/` — Landing: hero, servicios, obras destacadas, sobre la empresa, contacto (footer).
 - `/portafolio` — Listado de obras con filtro por categoría.
 - `/portafolio/[slug]` — Detalle de una obra con galería de fotos.
 
-> Nota: las páginas públicas leen datos de Supabase en build/SSR según convenga. Para que
-> el contenido editado en el admin aparezca sin re-deploy, el listado y el detalle de
-> portafolio se renderizan **SSR** (no prerender) leyendo con la `anon key`. La landing `/`
-> también lee SSR las obras destacadas y el contacto.
+> Nota: las páginas públicas se renderizan **SSR** leyendo datos de Supabase con la
+> `anon key`, de modo que el contenido editado en el admin aparece sin re-deploy. Solo
+> páginas verdaderamente estáticas (p. ej. textos legales, si existieran) se prerenderizan.
 
 ### Admin (SSR, protegido)
 - `/admin/login` — Formulario de login (email/contraseña).
