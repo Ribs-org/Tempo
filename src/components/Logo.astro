@@ -1,0 +1,18 @@
+---
+interface Props { class?: string; }
+const { class: cls = '' } = Astro.props;
+---
+<a href="/" class={`inline-flex items-center gap-3 ${cls}`} aria-label="TEMPO S.A. inicio">
+  <svg width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    <!-- arco naranja incompleto -->
+    <path d="M34 10a18 18 0 1 0 6 14" stroke="var(--color-orange)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <!-- tres barras verdes de distinta altura -->
+    <rect x="17" y="26" width="4" height="10" rx="1" fill="var(--color-green)"/>
+    <rect x="24" y="20" width="4" height="16" rx="1" fill="var(--color-green)"/>
+    <rect x="31" y="14" width="4" height="22" rx="1" fill="var(--color-green)"/>
+  </svg>
+  <span class="leading-none">
+    <span class="font-display font-bold text-xl tracking-tight text-ink">TEMPO</span>
+    <span class="font-display text-xs align-top text-ink">S.A.</span>
+  </span>
+</a>
