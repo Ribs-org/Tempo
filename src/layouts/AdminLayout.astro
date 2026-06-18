@@ -1,0 +1,37 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { actions } from 'astro:actions';
+interface Props { title: string; }
+const { title } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/admin', label: 'Obras' },
+  { href: '/admin/contacto', label: 'Contacto' },
+];
+---
+<BaseLayout title={title}>
+  <div class="min-h-screen bg-mist">
+    <header class="bg-white border-b border-black/5">
+      <div class="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-8">
+          <span class="font-display font-bold text-ink">TEMPO · Admin</span>
+          <nav class="flex gap-6 text-sm">
+            {nav.map((n) => (
+              <a href={n.href} class={`hover:text-green ${path === n.href ? 'text-green font-medium' : 'text-ink/70'}`}>{n.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="/" class="text-sm text-ink/60 hover:text-green">Ver sitio ↗</a>
+          <form method="POST" action={actions.logout}>
+            <button class="text-sm text-ink/70 hover:text-red-600">Cerrar sesión</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <main class="mx-auto max-w-6xl px-6 py-10">
+      <h1 class="font-display font-bold text-2xl text-ink mb-8">{title}</h1>
+      <slot />
+    </main>
+  </div>
+</BaseLayout>
