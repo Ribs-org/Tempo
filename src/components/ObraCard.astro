@@ -1,0 +1,18 @@
+---
+import type { Obra } from '../lib/types';
+import { categoriaLabel } from '../lib/types';
+interface Props { obra: Obra; }
+const { obra } = Astro.props;
+---
+<a href={`/portafolio/${obra.slug}`} class="group block overflow-hidden rounded-lg border border-black/5 bg-white hover:shadow-lg transition-shadow">
+  <div class="aspect-[4/3] overflow-hidden bg-mist">
+    {obra.portada_url
+      ? <img src={obra.portada_url} alt={obra.titulo} class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      : <div class="h-full w-full grid place-items-center text-ink/30 text-sm">Sin imagen</div>}
+  </div>
+  <div class="p-5">
+    <span class="text-xs font-medium uppercase tracking-wide text-green">{categoriaLabel(obra.categoria)}</span>
+    <h3 class="font-display font-semibold text-lg mt-1 text-ink">{obra.titulo}</h3>
+    {obra.ubicacion && <p class="text-sm text-ink/60 mt-1">{obra.ubicacion}{obra.anio ? ` · ${obra.anio}` : ''}</p>}
+  </div>
+</a>

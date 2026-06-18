@@ -1,6 +1,68 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ObraCard from '../components/ObraCard.astro';
+import { createAnonServerClient } from '../lib/supabase';
+import { getObras, getContacto } from '../lib/queries';
+
+const client = createAnonServerClient(Astro.cookies);
+const [destacadas, contacto] = await Promise.all([
+  getObras(client, { destacadas: true }),
+  getContacto(client),
+]);
+
+const servicios = [
+  { t: 'Construcción de obras', d: 'Ejecución de inmuebles con estándares de calidad y plazos cumplidos.' },
+  { t: 'Proyectos de ingeniería', d: 'Diseño y desarrollo integral de proyectos de edificación e infraestructura.' },
+  { t: 'Peritajes de obra', d: 'Inspección técnica, informes periciales y evaluación de obras.' },
+  { t: 'Licitaciones', d: 'Participación activa y preparación de propuestas para licitaciones públicas y privadas.' },
+];
 ---
-<BaseLayout title="TEMPO S.A.">
-  <main class="p-10"><h1 class="font-display text-4xl text-green">TEMPO S.A.</h1></main>
+<BaseLayout title="TEMPO S.A. — Consultora de Ingeniería y Proyectos">
+  <Header />
+  <main>
+    <!-- Hero -->
+    <section class="mx-auto max-w-6xl px-6 pt-20 pb-16">
+      <p class="text-green font-medium tracking-wide uppercase text-sm">Consultora de ingeniería y proyectos</p>
+      <h1 class="font-display font-bold text-4xl sm:text-6xl mt-4 max-w-3xl text-ink leading-[1.05]">
+        Construimos, proyectamos y peritamos obras con precisión.
+      </h1>
+      <p class="text-lg text-ink/70 mt-6 max-w-2xl">
+        TEMPO S.A. es una consultora de ingeniería dedicada a la construcción de inmuebles, el desarrollo de proyectos y la participación en licitaciones de obra.
+      </p>
+      <div class="mt-8 flex gap-4">
+        <a href="/portafolio" class="rounded-md bg-green px-6 py-3 text-white font-medium hover:bg-green-dark transition-colors">Ver portafolio</a>
+        <a href="#contacto" class="rounded-md border border-ink/15 px-6 py-3 font-medium hover:border-green transition-colors">Contáctanos</a>
+      </div>
+    </section>
+
+    <!-- Servicios -->
+    <section id="servicios" class="bg-mist py-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="font-display font-bold text-3xl text-ink">Servicios</h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-10">
+          {servicios.map((s) => (
+            <div class="rounded-lg bg-white p-6 border border-black/5">
+              <div class="h-1 w-10 bg-orange rounded-full mb-4"></div>
+              <h3 class="font-display font-semibold text-lg text-ink">{s.t}</h3>
+              <p class="text-sm text-ink/65 mt-2">{s.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Obras destacadas -->
+    <section class="mx-auto max-w-6xl px-6 py-20">
+      <div class="flex items-end justify-between">
+        <h2 class="font-display font-bold text-3xl text-ink">Obras destacadas</h2>
+        <a href="/portafolio" class="text-green font-medium text-sm hover:underline">Ver todo →</a>
+      </div>
+      {destacadas.length === 0
+        ? <p class="text-ink/50 mt-8">Aún no hay obras destacadas. Agrégalas desde el panel de administración.</p>
+        : <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-10">{destacadas.map((o) => <ObraCard obra={o} />)}</div>}
+    </section>
+  </main>
+  <Footer contacto={contacto} />
 </BaseLayout>
