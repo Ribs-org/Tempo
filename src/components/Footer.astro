@@ -22,6 +22,17 @@ const { contacto } = Astro.props;
       ))}
     </div>
   </div>
+  {contacto?.mapa_embed && contacto.mapa_embed.startsWith('https://') && (
+    <div class="mx-auto max-w-6xl px-6 pb-10">
+      <iframe
+        src={contacto.mapa_embed}
+        class="w-full h-64 rounded-lg border-0"
+        loading="lazy"
+        title="Mapa"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  )}
   <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">
     © {new Date().getFullYear()} TEMPO S.A. — Todos los derechos reservados.
   </div>

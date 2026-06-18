@@ -56,14 +56,27 @@ export const server = {
       };
 
       let obraId = input.id;
-      if (obraId) {
-        const { error } = await admin.from('obras').update(base).eq('id', obraId);
-        if (error) throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
-      } else {
-        const { data, error } = await admin.from('obras').insert(base).select('id').single();
-        if (error) throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
-        obraId = data!.id as string;
+
+      // Attempt insert or update, retrying with a suffixed slug on unique-constraint collisions.
+      const baseSlug = base.slug;
+      let lastError: { code: string; message: string } | null = null;
+      let written = false;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const slug = attempt === 0 ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
+        const row = { ...base, slug };
+        if (obraId) {
+          const { error } = await admin.from('obras').update(row).eq('id', obraId);
+          if (!error) { written = true; break; }
+          if (error.code !== '23505') throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
+          lastError = error;
+        } else {
+          const { data, error } = await admin.from('obras').insert(row).select('id').single();
+          if (!error) { obraId = data!.id as string; written = true; break; }
+          if (error.code !== '23505') throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
+          lastError = error;
+        }
       }
+      if (!written) throw new ActionError({ code: 'BAD_REQUEST', message: lastError?.message ?? 'Slug duplicado.' });
 
       const upload = async (file: File): Promise<string> => {
         const ext = file.name.split('.').pop() ?? 'jpg';
@@ -135,7 +148,8 @@ export const server = {
       const redes: Record<string, string> = {};
       if (input.linkedin) redes.linkedin = input.linkedin;
       if (input.instagram) redes.instagram = input.instagram;
-      const { error } = await admin.from('contacto').update({
+      const { error } = await admin.from('contacto').upsert({
+        id: 1,
         razon_social: input.razon_social,
         direccion: input.direccion ?? null,
         telefono: input.telefono ?? null,
@@ -143,7 +157,7 @@ export const server = {
         horario: input.horario ?? null,
         mapa_embed: input.mapa_embed ?? null,
         redes: Object.keys(redes).length ? redes : null,
-      }).eq('id', 1);
+      });
       if (error) throw new ActionError({ code: 'BAD_REQUEST', message: error.message });
       return { ok: true };
     },

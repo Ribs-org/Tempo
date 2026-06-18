@@ -3,14 +3,16 @@ import type { Obra, Contacto } from './types';
 
 export function slugify(s: string): string {
   return s
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD')
+    // strip diacritics (combining marks U+0300–U+036F)
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase().trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
 
 export async function getContacto(client: SupabaseClient): Promise<Contacto | null> {
-  const { data } = await client.from('contacto').select('*').eq('id', 1).single();
+  const { data } = await client.from('contacto').select('*').eq('id', 1).maybeSingle();
   return (data as Contacto) ?? null;
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "tempo",
   "version": "1.0.0",
-  "description": "This repositoria is the landing page of Tempo",
+  "description": "Sitio web y panel de administración de Tempo S.A.",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
