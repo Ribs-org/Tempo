@@ -75,12 +75,14 @@ export const server = {
 
       if (input.portada && input.portada.size > 0) {
         const url = await upload(input.portada);
-        await admin.from('obras').update({ portada_url: url }).eq('id', obraId);
+        const { error: portadaError } = await admin.from('obras').update({ portada_url: url }).eq('id', obraId);
+        if (portadaError) throw new ActionError({ code: 'BAD_REQUEST', message: portadaError.message });
       }
       const fotos = (input.fotos ?? []).filter((f) => f && f.size > 0);
       for (const f of fotos) {
         const url = await upload(f);
-        await admin.from('obra_fotos').insert({ obra_id: obraId, url });
+        const { error: fotoError } = await admin.from('obra_fotos').insert({ obra_id: obraId, url });
+        if (fotoError) throw new ActionError({ code: 'BAD_REQUEST', message: fotoError.message });
       }
       return { id: obraId };
     },
