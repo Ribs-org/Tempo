@@ -8,7 +8,7 @@ export const server = {
     accept: 'form',
     input: z.object({ email: z.string().email(), password: z.string().min(1) }),
     handler: async ({ email, password }, ctx) => {
-      const supabase = createAnonServerClient(ctx.cookies);
+      const supabase = createAnonServerClient(ctx.cookies, ctx.request.headers);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new ActionError({ code: 'UNAUTHORIZED', message: 'Credenciales inválidas.' });
       return { ok: true };
@@ -17,7 +17,7 @@ export const server = {
   logout: defineAction({
     accept: 'form',
     handler: async (_input, ctx) => {
-      const supabase = createAnonServerClient(ctx.cookies);
+      const supabase = createAnonServerClient(ctx.cookies, ctx.request.headers);
       await supabase.auth.signOut();
       return { ok: true };
     },

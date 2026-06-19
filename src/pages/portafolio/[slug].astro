@@ -7,7 +7,7 @@ import { getObraBySlug, getContacto } from '../../lib/queries';
 import { categoriaLabel, estadoLabel } from '../../lib/types';
 
 const { slug } = Astro.params;
-const client = createAnonServerClient(Astro.cookies);
+const client = createAnonServerClient(Astro.cookies, Astro.request.headers);
 const obra = await getObraBySlug(client, slug!);
 if (!obra) return Astro.redirect('/portafolio');
 const contacto = await getContacto(client);

@@ -2,7 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { createAnonServerClient } from './lib/supabase';
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const supabase = createAnonServerClient(context.cookies);
+  const supabase = createAnonServerClient(context.cookies, context.request.headers);
   const { data: { user } } = await supabase.auth.getUser();
   context.locals.supabase = supabase;
   context.locals.user = user;

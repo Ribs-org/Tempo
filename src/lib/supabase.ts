@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { AstroCookies } from 'astro';
 
@@ -17,15 +17,26 @@ function requireEnv(value: string | undefined, name: string): string {
   return value;
 }
 
+/**
+ * Cookie adapter for @supabase/ssr.
+ * Astro's `AstroCookies` has no `getAll()`, so reads come from the request's
+ * `Cookie` header (via parseCookieHeader) and writes go through `cookies.set`.
+ */
+export function buildCookieAdapter(cookies: AstroCookies, headers: Headers) {
+  return {
+    getAll: () => parseCookieHeader(headers.get('Cookie') ?? ''),
+    setAll: (toSet: { name: string; value: string; options: Record<string, unknown> }[]) =>
+      toSet.forEach(({ name, value, options }) => cookies.set(name, value, options)),
+  };
+}
+
 /** Anon client bound to the request cookies — used for reads and auth/session. */
-export function createAnonServerClient(cookies: AstroCookies): SupabaseClient {
-  return createServerClient(requireEnv(SUPABASE_URL, 'PUBLIC_SUPABASE_URL'), requireEnv(ANON, 'PUBLIC_SUPABASE_ANON_KEY'), {
-    cookies: {
-      getAll: () => cookies.getAll().map(({ name, value }) => ({ name, value })),
-      setAll: (toSet) =>
-        toSet.forEach(({ name, value, options }) => cookies.set(name, value, options)),
-    },
-  });
+export function createAnonServerClient(cookies: AstroCookies, headers: Headers): SupabaseClient {
+  return createServerClient(
+    requireEnv(SUPABASE_URL, 'PUBLIC_SUPABASE_URL'),
+    requireEnv(ANON, 'PUBLIC_SUPABASE_ANON_KEY'),
+    { cookies: buildCookieAdapter(cookies, headers) },
+  );
 }
 
 /** Service-role client — server only, bypasses RLS. Never import in client code. */

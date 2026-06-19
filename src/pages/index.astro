@@ -6,7 +6,7 @@ import ObraCard from '../components/ObraCard.astro';
 import { createAnonServerClient } from '../lib/supabase';
 import { getObras, getContacto } from '../lib/queries';
 
-const client = createAnonServerClient(Astro.cookies);
+const client = createAnonServerClient(Astro.cookies, Astro.request.headers);
 const [destacadas, contacto] = await Promise.all([
   getObras(client, { destacadas: true }),
   getContacto(client),
